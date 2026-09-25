@@ -1,0 +1,34 @@
+from __future__ import annotations
+
+import argparse
+import sys
+from pathlib import Path
+
+from .config import get_database_path
+from .db import connect, initialize_database, seed_database
+from .logging_utils import configure_logging
+from .reporting import render_feeder_report
+from .repository import feeder_summary, latest_event_by_meter
+
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="gridpulse", description="Energy meter outage analytics")
+    parser.add_argument("--db", default=None, help="SQLite database path; defaults to GRIDPULSE_DB or data/gridpulse.db")
+    parser.add_argument("--log-level", default="INFO", choices=["DEBUG", "INFO", "WARNING", "ERROR"])
+    sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("init-db", help="Create and seed the database")
+    report = sub.add_parser("report", help="Print the feeder outage report")
+    report.add_argument("--as-of", default="2026-09-03 12:00", help="Timestamp for active-event calculations")
+    return parser
+
+
+def main(argv: list[str] | None = None) -> int:
+    """Run the CLI.
+
+    TODO(candidate): wire init-db/report commands, logging, errors, and exit codes.
+    """
+    raise NotImplementedError("TODO: implement CLI")
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
