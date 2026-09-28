@@ -1,0 +1,6 @@
+# TODO(candidate): define a gridpulse service with:
+# - local build context
+# - GRIDPULSE_DB=/data/gridpulse.db
+# - a named gridpulse-data volume mounted at /data
+# - an isolated bridge network
+# - a command that initializes the database and prints the report

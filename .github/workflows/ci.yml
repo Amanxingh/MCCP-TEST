@@ -1,0 +1,8 @@
+# TODO(candidate): complete a Windows CI workflow.
+# Required behavior:
+# - trigger on push, pull_request, and manual workflow_dispatch
+# - run on windows-latest
+# - install pytest using --no-index --find-links=vendor
+# - run python -m pytest as a failing test gate
+# - add staging and production environments for manual promotion
+# - reference secrets.GRIDPULSE_DEPLOY_HOST without hard-coding a secret
