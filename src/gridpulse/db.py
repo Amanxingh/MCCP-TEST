@@ -48,6 +48,6 @@ def initialize_database(conn: sqlite3.Connection) -> None:
 def seed_database(conn: sqlite3.Connection) -> None:
     """Load deterministic seed data. Re-running must not duplicate rows.
 
-    TODO(candidate): use idempotent INSERT OR REPLACE statements and commit.
+    TODO(candidate): use idempotent upsert statements and commit.
     """
     raise NotImplementedError("TODO: seed the GridPulse database")
