@@ -1,8 +1,65 @@
-# TODO(candidate): complete a Windows CI workflow.
-# Required behavior:
-# - trigger on push, pull_request, and manual workflow_dispatch
-# - run on windows-latest
-# - install pytest using --no-index --find-links=vendor
-# - run python -m pytest as a failing test gate
-# - add staging and production environments for manual promotion
-# - reference secrets.GRIDPULSE_DEPLOY_HOST without hard-coding a secret
+
+name: Windows CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run Tests
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install pytest from vendor
+        run: python -m pip install --no-index --find-links=vendor pytest
+
+      - name: Run test suite
+        run: python -m pytest -v
+
+  staging:
+    name: Staging Promotion
+    runs-on: windows-latest
+    needs: test
+    if: github.event_name == 'workflow_dispatch'
+    environment: staging
+
+    steps:
+      - name: Validate deployment configuration
+        shell: pwsh
+        env:
+          GRIDPULSE_DEPLOY_HOST: ${{ secrets.GRIDPULSE_DEPLOY_HOST }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:GRIDPULSE_DEPLOY_HOST)) {
+            Write-Error "GRIDPULSE_DEPLOY_HOST secret is not configured."
+            exit 1
+          }
+          Write-Output "Staging deployment configuration validated."
+
+  production:
+    name: Production Promotion
+    runs-on: windows-latest
+    needs: staging
+    if: github.event_name == 'workflow_dispatch'
+    environment: production
+
+    steps:
+      - name: Validate deployment configuration
+        shell: pwsh
+        env:
+          GRIDPULSE_DEPLOY_HOST: ${{ secrets.GRIDPULSE_DEPLOY_HOST }}
+        run: |
+          if ([string]::IsNullOrWhiteSpace($env:GRIDPULSE_DEPLOY_HOST)) {
+            Write-Error "GRIDPULSE_DEPLOY_HOST secret is not configured."
+            exit 1
+          }
+          Write-Output "Production deployment configuration validated."
