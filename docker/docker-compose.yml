@@ -1,6 +1,24 @@
-# TODO(candidate): define a gridpulse service with:
-# - local build context
-# - GRIDPULSE_DB=/data/gridpulse.db
-# - a named gridpulse-data volume mounted at /data
-# - an isolated bridge network
-# - a command that initializes the database and prints the report
+
+services:
+  gridpulse:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    environment:
+      GRIDPULSE_DB: /data/gridpulse.db
+    volumes:
+      - gridpulse-data:/data
+    networks:
+      - gridpulse-network
+    command:
+      - /bin/sh
+      - -c
+      - python -m gridpulse.cli --db "$$GRIDPULSE_DB" init-db && python -m gridpulse.cli --db "$$GRIDPULSE_DB" report
+
+volumes:
+  gridpulse-data:
+
+networks:
+  gridpulse-network:
+    driver: bridge
+    internal: true
