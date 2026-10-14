@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 import sqlite3
@@ -5,10 +6,39 @@ from pathlib import Path
 
 from .config import normalize_path
 
+
 SCHEMA_SQL = """
 -- TODO(candidate): create meters, outage_events, and a useful composite index.
 -- Required columns are described by the seed rows below and by tests/test_db.py.
+
+CREATE TABLE IF NOT EXISTS meters (
+    meter_id TEXT PRIMARY KEY,
+    feeder_id TEXT NOT NULL,
+    region TEXT NOT NULL,
+    capacity_kw REAL NOT NULL CHECK (capacity_kw > 0),
+    status TEXT NOT NULL CHECK (
+        status IN ('active', 'maintenance')
+    )
+);
+
+CREATE TABLE IF NOT EXISTS outage_events (
+    event_id INTEGER PRIMARY KEY,
+    meter_id TEXT NOT NULL,
+    started_at TEXT NOT NULL,
+    ended_at TEXT,
+    event_type TEXT NOT NULL,
+    duration_minutes INTEGER NOT NULL CHECK (duration_minutes >= 0),
+    FOREIGN KEY (meter_id) REFERENCES meters(meter_id),
+    CHECK (ended_at IS NULL OR ended_at >= started_at)
+);
+
+CREATE INDEX IF NOT EXISTS idx_outage_events_meter_started
+ON outage_events (meter_id, started_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_outage_events_started
+ON outage_events (started_at DESC, event_id DESC);
 """
+
 
 METER_ROWS = [
     ("M1001", "F-North", "North", 12, "active"),
@@ -23,7 +53,7 @@ EVENT_ROWS = [
     (2, "M1002", "2026-09-01 09:15", "2026-09-01 11:45", "storm", 4),
     (3, "M2001", "2026-09-02 14:00", "2026-09-02 15:00", "equipment", 22),
     (4, "M2002", "2026-09-03 06:30", None, "equipment", 35),
-    (5, "M3001", "2026-09-03 07:00", "2026-09-03 09:00", "vegetation", 9),
+    (5, "M3001", "2026-09-03 07:00", "2026-09-03 07:30", "vegetation", 9),
     (6, "M1001", "2026-09-04 08:30", "2026-09-04 08:50", "vegetation", 12),
 ]
 
@@ -42,7 +72,8 @@ def initialize_database(conn: sqlite3.Connection) -> None:
 
     TODO(candidate): execute SCHEMA_SQL as a transaction.
     """
-    raise NotImplementedError("TODO: create the GridPulse schema")
+    with conn:
+        conn.executescript(SCHEMA_SQL)
 
 
 def seed_database(conn: sqlite3.Connection) -> None:
@@ -50,4 +81,35 @@ def seed_database(conn: sqlite3.Connection) -> None:
 
     TODO(candidate): use idempotent upsert statements and commit.
     """
-    raise NotImplementedError("TODO: seed the GridPulse database")
+    with conn:
+        conn.executemany(
+            """
+            INSERT INTO meters (
+                meter_id, feeder_id, region, capacity_kw, status
+            )
+            VALUES (?, ?, ?, ?, ?)
+            ON CONFLICT(meter_id) DO UPDATE SET
+                feeder_id = excluded.feeder_id,
+                region = excluded.region,
+                capacity_kw = excluded.capacity_kw,
+                status = excluded.status
+            """,
+            METER_ROWS,
+        )
+
+        conn.executemany(
+            """
+            INSERT INTO outage_events (
+                event_id, meter_id, started_at, ended_at,
+                event_type, duration_minutes
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            ON CONFLICT(event_id) DO UPDATE SET
+                meter_id = excluded.meter_id,
+                started_at = excluded.started_at,
+                ended_at = excluded.ended_at,
+                event_type = excluded.event_type,
+                duration_minutes = excluded.duration_minutes
+            """,
+            EVENT_ROWS,
+        )

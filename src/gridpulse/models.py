@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 from dataclasses import dataclass
@@ -7,6 +8,7 @@ TS_FORMAT = "%Y-%m-%d %H:%M"
 
 
 def parse_ts(value: str) -> datetime:
+    """Parse a timestamp using the project's standard format."""
     return datetime.strptime(value, TS_FORMAT)
 
 
@@ -33,15 +35,44 @@ class OutageEvent:
     def duration_minutes(self, as_of: str | None = None) -> int:
         """Return elapsed outage minutes, using as_of for active events.
 
-        TODO(candidate): parse timestamps, handle active events, reject an
-        impossible restore time, and return whole minutes.
+        Parse timestamps, handle active events, reject an impossible
+        restoration time, and return whole minutes.
         """
-        raise NotImplementedError("TODO: implement outage duration")
+        start = parse_ts(self.started_at)
+
+        if self.restored_at is not None:
+            end = parse_ts(self.restored_at)
+
+            if end < start:
+                raise ValueError(
+                    "Restoration time cannot be before start time"
+                )
+        else:
+            if as_of is None:
+                raise ValueError(
+                    "as_of is required for an active outage"
+                )
+
+            end = parse_ts(as_of)
+
+            if end < start:
+                raise ValueError(
+                    "as_of cannot be before start time"
+                )
+
+        return int((end - start).total_seconds() // 60)
 
     def __str__(self) -> str:
-        return f"Event({self.event_id}, meter={self.meter_id}, cause={self.cause})"
+        return (
+            f"Event({self.event_id}, "
+            f"meter={self.meter_id}, cause={self.cause})"
+        )
 
     def __lt__(self, other: "OutageEvent") -> bool:
         if not isinstance(other, OutageEvent):
             return NotImplemented
-        return (self.started_at, self.event_id) < (other.started_at, other.event_id)
+
+        return (self.started_at, self.event_id) < (
+            other.started_at,
+            other.event_id,
+        )
