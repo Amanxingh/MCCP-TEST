@@ -33,7 +33,8 @@ class OutageAnalyzer:
 
         TODO(candidate): reject unknown causes with OutageDataError.
         """
-        raise NotImplementedError("TODO: implement priority score")
+        # WIP: provisional scoring from customer impact only
+        return float(event.reported_customers)
 
     def classify_event(self, event: OutageEvent, as_of: str | None = None) -> str:
         """Classify as active, brief (<30), standard (<120), or extended."""
