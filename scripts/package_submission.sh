@@ -1,10 +1,27 @@
-#!/usr/bin/env bash
-set -euo pipefail
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$ROOT_DIR"
-mkdir -p submission
 
-# TODO(candidate): create submission/gridpulse-submission.tar.gz with tar.
-# Exclude .git, .venv, caches, data/*.db, artifacts, submission, and old archives.
-echo "TODO(candidate): implement package_submission.sh" >&2
-exit 1
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ARCHIVE_NAME="gridpulse-submission.tar.gz"
+ARCHIVE_PATH="$PROJECT_ROOT/$ARCHIVE_NAME"
+
+cd "$PROJECT_ROOT"
+
+# Exclude Git metadata, virtual environments, caches, and previous archives.
+tar -czf "$ARCHIVE_PATH" \
+    --exclude=".git" \
+    --exclude=".venv" \
+    --exclude="venv" \
+    --exclude="__pycache__" \
+    --exclude=".pytest_cache" \
+    --exclude=".mypy_cache" \
+    --exclude=".ruff_cache" \
+    --exclude="$ARCHIVE_NAME" \
+    .
+
+echo "Submission archive created:"
+echo "$ARCHIVE_PATH"
+echo "Archive size:"
+du -h "$ARCHIVE_PATH"

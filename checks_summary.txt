@@ -1,0 +1,646 @@
+GridPulse Check Summary
+=======================
+Python command: python3
+
+Python 3.14.2
+Environment check: PASS
+Tests: FAIL
+============================= test session starts =============================
+platform win32 -- Python 3.14.2, pytest-9.1.1, pluggy-1.6.0 -- C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\python.exe
+cachedir: .pytest_cache
+rootdir: D:\gridpulse-outage-analytics
+plugins: anyio-4.14.2
+collecting ... collected 34 items
+
+tests/test_candidate_pytest.py::test_priority_score_uses_duration_customers_and_cause_multiplier PASSED [  2%]
+tests/test_candidate_pytest.py::test_cli_rejects_invalid_log_level PASSED [  5%]
+tests/test_cli.py::test_init_and_report_cli FAILED                       [  8%]
+tests/test_cli.py::test_cli_uses_environment_database PASSED             [ 11%]
+tests/test_cli.py::test_cli_rejects_bad_database_path FAILED             [ 14%]
+tests/test_db.py::test_schema_and_deterministic_seed PASSED              [ 17%]
+tests/test_db.py::test_relational_constraints FAILED                     [ 20%]
+tests/test_db.py::test_composite_index_exists PASSED                     [ 23%]
+tests/test_docker_ci_static.py::test_dockerfile_uses_reproducible_offline_test_install FAILED [ 26%]
+tests/test_docker_ci_static.py::test_compose_declares_volume_network_and_environment FAILED [ 29%]
+tests/test_docker_ci_static.py::test_ci_has_test_gate_promotion_and_safe_secrets FAILED [ 32%]
+tests/test_logging_utils.py::test_configure_logging_does_not_duplicate_handlers PASSED [ 35%]
+tests/test_logging_utils.py::test_timed_operation_logs_completion FAILED [ 38%]
+tests/test_logging_utils.py::test_timed_operation_logs_failure PASSED    [ 41%]
+tests/test_models.py::test_closed_event_duration PASSED                  [ 44%]
+tests/test_models.py::test_active_event_uses_as_of PASSED                [ 47%]
+tests/test_models.py::test_impossible_restore_time_is_rejected PASSED    [ 50%]
+tests/test_models.py::test_events_sort_by_timestamp_then_id PASSED       [ 52%]
+tests/test_reporting.py::test_render_feeder_report_exact_text FAILED     [ 55%]
+tests/test_repository.py::test_list_events_joins_meter_dimension FAILED  [ 58%]
+tests/test_repository.py::test_feeder_summary_has_baked_in_values FAILED [ 61%]
+tests/test_repository.py::test_latest_event_by_meter_uses_window_logic FAILED [ 64%]
+tests/test_repository.py::test_recurring_meters_uses_cte_and_having PASSED [ 67%]
+tests/test_repository.py::test_explain_plan_uses_composite_index PASSED  [ 70%]
+tests/test_scripts_static.py::test_run_checks_auto_detects_interpreter_and_writes_summary FAILED [ 73%]
+tests/test_scripts_static.py::test_package_script_uses_tar_and_excludes_generated_files FAILED [ 76%]
+tests/test_scripts_static.py::test_remote_deploy_validates_environment_and_does_not_connect FAILED [ 79%]
+tests/test_service.py::test_priority_scores_are_deterministic PASSED     [ 82%]
+tests/test_service.py::test_unknown_cause_raises_domain_error FAILED     [ 85%]
+tests/test_service.py::test_classification_boundaries PASSED             [ 88%]
+tests/test_service.py::test_high_priority_generator_orders_by_score PASSED [ 91%]
+tests/test_service.py::test_parse_feeder_code_with_regex PASSED          [ 94%]
+tests/test_service.py::test_summarize_regions_functionally PASSED        [ 97%]
+tests/test_service.py::test_log_call_decorator_preserves_metadata_and_logs PASSED [100%]
+
+================================== FAILURES ===================================
+__________________________ test_init_and_report_cli ___________________________
+
+db_path = WindowsPath('C:/Users/HP/AppData/Local/Temp/pytest-of-HP/pytest-48/test_init_and_report_cli0/gridpulse-test.db')
+capsys = <_pytest.capture.CaptureFixture object at 0x000002571C5D1160>
+
+    def test_init_and_report_cli(db_path, capsys):
+        assert main(["--db", str(db_path), "init-db"]) == 0
+        assert db_path.exists()
+>       assert main(["--db", str(db_path), "report"]) == 0
+E       AssertionError: assert 1 == 0
+E        +  where 1 = main(['--db', 'C:\\Users\\HP\\AppData\\Local\\Temp\\pytest-of-HP\\pytest-48\\test_init_and_report_cli0\\gridpulse-test.db', 'report'])
+
+tests\test_cli.py:9: AssertionError
+---------------------------- Captured stderr call -----------------------------
+2026-10-14 19:42:37,884 INFO gridpulse Starting GridPulse command: init-db
+2026-10-14 19:42:37,897 INFO gridpulse Database initialized and seeded: C:\Users\HP\AppData\Local\Temp\pytest-of-HP\pytest-48\test_init_and_report_cli0\gridpulse-test.db
+2026-10-14 19:42:37,898 INFO gridpulse Starting GridPulse command: report
+2026-10-14 19:42:37,899 ERROR gridpulse Unexpected CLI failure
+Traceback (most recent call last):
+  File "D:\gridpulse-outage-analytics\src\gridpulse\cli.py", line 51, in main
+    summary = feeder_summary(conn)
+  File "D:\gridpulse-outage-analytics\src\gridpulse\repository.py", line 72, in feeder_summary
+    rows = conn.execute(query).fetchall()
+           ~~~~~~~~~~~~^^^^^^^
+sqlite3.OperationalError: no such column: e.reported_customers
+Unexpected error: no such column: e.reported_customers
+_____________________ test_cli_rejects_bad_database_path ______________________
+
+tmp_path = WindowsPath('C:/Users/HP/AppData/Local/Temp/pytest-of-HP/pytest-48/test_cli_rejects_bad_database_0')
+capsys = <_pytest.capture.CaptureFixture object at 0x000002571C6442D0>
+
+    def test_cli_rejects_bad_database_path(tmp_path, capsys):
+        blocked = tmp_path / "not-a-directory"
+        blocked.write_text("occupied", encoding="utf-8")
+>       assert main(["--db", str(blocked / "gridpulse.db"), "init-db"]) == 2
+E       AssertionError: assert 1 == 2
+E        +  where 1 = main(['--db', 'C:\\Users\\HP\\AppData\\Local\\Temp\\pytest-of-HP\\pytest-48\\test_cli_rejects_bad_database_0\\not-a-directory\\gridpulse.db', 'init-db'])
+
+tests\test_cli.py:24: AssertionError
+---------------------------- Captured stderr call -----------------------------
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\logging\__init__.py", line 1154, in emit
+    stream.write(msg + self.terminator)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: I/O operation on closed file.
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytest\__main__.py", line 9, in <module>
+    raise SystemExit(_console_main())
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\config\__init__.py", line 253, in _console_main
+    code = _main(prog=_get_prog_name(sys.argv))
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\config\__init__.py", line 229, in _main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 377, in pytest_cmdline_main
+    return wrap_session(config, _main)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 330, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 384, in _main
+    config.hook.pytest_runtestloop(session=session)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 408, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 139, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 249, in call_and_report
+    call = CallInfo.from_call(
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 361, in from_call
+    result: TResult | None = func()
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 250, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 184, in pytest_runtest_call
+    item.runtest()
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\python.py", line 1707, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\python.py", line 167, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+  File "D:\gridpulse-outage-analytics\tests\test_cli.py", line 24, in test_cli_rejects_bad_database_path
+    assert main(["--db", str(blocked / "gridpulse.db"), "init-db"]) == 2
+  File "D:\gridpulse-outage-analytics\src\gridpulse\cli.py", line 40, in main
+    logger.info("Starting GridPulse command: %s", args.command)
+Message: 'Starting GridPulse command: %s'
+Arguments: ('init-db',)
+--- Logging error ---
+Traceback (most recent call last):
+  File "D:\gridpulse-outage-analytics\src\gridpulse\cli.py", line 43, in main
+    with connect(db_path) as conn:
+         ~~~~~~~^^^^^^^^^
+  File "D:\gridpulse-outage-analytics\src\gridpulse\db.py", line 63, in connect
+    db_path.parent.mkdir(parents=True, exist_ok=True)
+    ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\pathlib\__init__.py", line 1011, in mkdir
+    os.mkdir(self, mode)
+    ~~~~~~~~^^^^^^^^^^^^
+FileExistsError: [WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\HP\\AppData\\Local\\Temp\\pytest-of-HP\\pytest-48\\test_cli_rejects_bad_database_0\\not-a-directory'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\logging\__init__.py", line 1154, in emit
+    stream.write(msg + self.terminator)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: I/O operation on closed file.
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytest\__main__.py", line 9, in <module>
+    raise SystemExit(_console_main())
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\config\__init__.py", line 253, in _console_main
+    code = _main(prog=_get_prog_name(sys.argv))
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\config\__init__.py", line 229, in _main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 377, in pytest_cmdline_main
+    return wrap_session(config, _main)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 330, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 384, in _main
+    config.hook.pytest_runtestloop(session=session)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 408, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 139, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 249, in call_and_report
+    call = CallInfo.from_call(
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 361, in from_call
+    result: TResult | None = func()
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 250, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 184, in pytest_runtest_call
+    item.runtest()
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\python.py", line 1707, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\python.py", line 167, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+  File "D:\gridpulse-outage-analytics\tests\test_cli.py", line 24, in test_cli_rejects_bad_database_path
+    assert main(["--db", str(blocked / "gridpulse.db"), "init-db"]) == 2
+  File "D:\gridpulse-outage-analytics\src\gridpulse\cli.py", line 62, in main
+    logging.getLogger("gridpulse").error("Command failed: %s", exc)
+Message: 'Command failed: %s'
+Arguments: (FileExistsError(17, 'Cannot create a file when that file already exists'),)
+Error: [WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\HP\\AppData\\Local\\Temp\\pytest-of-HP\\pytest-48\\test_cli_rejects_bad_database_0\\not-a-directory'
+------------------------------ Captured log call ------------------------------
+INFO     gridpulse:cli.py:40 Starting GridPulse command: init-db
+ERROR    gridpulse:cli.py:62 Command failed: [WinError 183] Cannot create a file when that file already exists: 'C:\\Users\\HP\\AppData\\Local\\Temp\\pytest-of-HP\\pytest-48\\test_cli_rejects_bad_database_0\\not-a-directory'
+_________________________ test_relational_constraints _________________________
+
+seeded_conn = <sqlite3.Connection object at 0x000002571C605D50>
+
+    def test_relational_constraints(seeded_conn):
+        with pytest.raises(sqlite3.IntegrityError):
+>           seeded_conn.execute(
+                "INSERT INTO outage_events(event_id, meter_id, started_at, cause, reported_customers) VALUES (?, ?, ?, ?, ?)",
+                (99, "MISSING", "2026-09-05 00:00", "storm", 1),
+            )
+E           sqlite3.OperationalError: table outage_events has no column named cause
+
+tests\test_db.py:24: OperationalError
+___________ test_dockerfile_uses_reproducible_offline_test_install ____________
+
+    def test_dockerfile_uses_reproducible_offline_test_install():
+        text = read("docker/Dockerfile")
+        for token in ["FROM python:3.12-slim", "WORKDIR /app", "COPY requirements-dev.txt", "COPY vendor/", "--no-index", "--find-links=vendor", "COPY src/", "COPY tests/", "CMD"]:
+>           assert token in text
+E           AssertionError: assert 'FROM python:3.12-slim' in '# TODO(candidate): build a reproducible Python 3.12 image.\n# Requirements:\n# - use python:3.12-slim\n# - set WORKDIR /app and PYTHONDONTWRITEBYTECODE=1\n# - copy requirements-dev.txt and vendor/\n# - install pytest with --no-index --find-links=vendor\n# - copy src/, tests/, and verify_env.py\n# - default CMD runs the test suite\n'
+
+tests\test_docker_ci_static.py:15: AssertionError
+____________ test_compose_declares_volume_network_and_environment _____________
+
+    def test_compose_declares_volume_network_and_environment():
+        text = read("docker/docker-compose.yml")
+        for token in ["services:", "build:", "volumes:", "networks:", "GRIDPULSE_DB", "gridpulse-data"]:
+>           assert token in text
+E           AssertionError: assert 'services:' in '# TODO(candidate): define a gridpulse service with:\n# - local build context\n# - GRIDPULSE_DB=/data/gridpulse.db\n# - a named gridpulse-data volume mounted at /data\n# - an isolated bridge network\n# - a command that initializes the database and prints the report\n'
+
+tests\test_docker_ci_static.py:22: AssertionError
+______________ test_ci_has_test_gate_promotion_and_safe_secrets _______________
+
+    def test_ci_has_test_gate_promotion_and_safe_secrets():
+        text = read(".github/workflows/ci.yml")
+        for token in ["pull_request", "windows-latest", "--no-index --find-links=vendor", "python -m pytest", "workflow_dispatch", "environment: staging", "environment: production", "secrets.GRIDPULSE_DEPLOY_HOST"]:
+>           assert token in text
+E           AssertionError: assert 'environment: staging' in '# TODO(candidate): complete a Windows CI workflow.\n# Required behavior:\n# - trigger on push, pull_request, and manual workflow_dispatch\n# - run on windows-latest\n# - install pytest using --no-index --find-links=vendor\n# - run python -m pytest as a failing test gate\n# - add staging and production environments for manual promotion\n# - reference secrets.GRIDPULSE_DEPLOY_HOST without hard-coding a secret\n'
+
+tests\test_docker_ci_static.py:29: AssertionError
+____________________ test_timed_operation_logs_completion _____________________
+
+caplog = <_pytest.logging.LogCaptureFixture object at 0x000002571C5D2270>
+
+    def test_timed_operation_logs_completion(caplog):
+        logger = configure_logging("INFO")
+        with caplog.at_level(logging.INFO, logger="gridpulse"):
+            with timed_operation(logger, "report"):
+                pass
+>       assert "report" in caplog.text
+E       AssertionError: assert 'report' in 'INFO     gridpulse:logging_utils.py:63 Operation completed\n'
+E        +  where 'INFO     gridpulse:logging_utils.py:63 Operation completed\n' = <_pytest.logging.LogCaptureFixture object at 0x000002571C5D2270>.text
+
+tests\test_logging_utils.py:23: AssertionError
+---------------------------- Captured stderr call -----------------------------
+--- Logging error ---
+Traceback (most recent call last):
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\logging\__init__.py", line 1154, in emit
+    stream.write(msg + self.terminator)
+    ~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^
+ValueError: I/O operation on closed file.
+Call stack:
+  File "<frozen runpy>", line 198, in _run_module_as_main
+  File "<frozen runpy>", line 88, in _run_code
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pytest\__main__.py", line 9, in <module>
+    raise SystemExit(_console_main())
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\config\__init__.py", line 253, in _console_main
+    code = _main(prog=_get_prog_name(sys.argv))
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\config\__init__.py", line 229, in _main
+    ret: ExitCode | int = config.hook.pytest_cmdline_main(config=config)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 377, in pytest_cmdline_main
+    return wrap_session(config, _main)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 330, in wrap_session
+    session.exitstatus = doit(config, session) or 0
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 384, in _main
+    config.hook.pytest_runtestloop(session=session)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\main.py", line 408, in pytest_runtestloop
+    item.config.hook.pytest_runtest_protocol(item=item, nextitem=nextitem)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 118, in pytest_runtest_protocol
+    runtestprotocol(item, nextitem=nextitem)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 139, in runtestprotocol
+    reports.append(call_and_report(item, "call", log))
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 249, in call_and_report
+    call = CallInfo.from_call(
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 361, in from_call
+    result: TResult | None = func()
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 250, in <lambda>
+    lambda: runtest_hook(item=item, **kwds),
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\runner.py", line 184, in pytest_runtest_call
+    item.runtest()
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\python.py", line 1707, in runtest
+    self.ihook.pytest_pyfunc_call(pyfuncitem=self)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_hooks.py", line 512, in __call__
+    return self._hookexec(self.name, self._hookimpls.copy(), kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_manager.py", line 120, in _hookexec
+    return self._inner_hookexec(hook_name, methods, kwargs, firstresult)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\pluggy\_callers.py", line 121, in _multicall
+    res = hook_impl.function(*args)
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\_pytest\python.py", line 167, in pytest_pyfunc_call
+    result = testfunction(**testargs)
+  File "D:\gridpulse-outage-analytics\tests\test_logging_utils.py", line 21, in test_timed_operation_logs_completion
+    with timed_operation(logger, "report"):
+  File "C:\Users\HP\AppData\Local\Python\pythoncore-3.14-64\Lib\contextlib.py", line 148, in __exit__
+    next(self.gen)
+  File "D:\gridpulse-outage-analytics\src\gridpulse\logging_utils.py", line 63, in timed_operation
+    logger.info(
+Message: 'Operation completed'
+Arguments: ()
+------------------------------ Captured log call ------------------------------
+INFO     gridpulse:logging_utils.py:63 Operation completed
+____________________ test_render_feeder_report_exact_text _____________________
+
+seeded_conn = <sqlite3.Connection object at 0x000002571C736B60>
+
+    def test_render_feeder_report_exact_text(seeded_conn):
+>       assert render_feeder_report(feeder_summary(seeded_conn), latest_event_by_meter(seeded_conn)) == EXPECTED
+                                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_reporting.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+conn = <sqlite3.Connection object at 0x000002571C736B60>
+
+    def feeder_summary(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+        """Return per-feeder event, customer, duration, and active-event totals.
+    
+        TODO(candidate): use a JOIN, GROUP BY, deterministic ordering, and duration
+        calculation. Expected keys: feeder_id, region, event_count,
+        affected_customers, closed_minutes, active_events.
+        """
+        query = """
+        SELECT
+            m.feeder_id,
+            m.region,
+            COUNT(e.event_id) AS event_count,
+            COALESCE(SUM(e.reported_customers), 0) AS affected_customers,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN e.restored_at IS NOT NULL THEN
+                            MAX(
+                                0,
+                                (julianday(e.restored_at)
+                                 - julianday(e.started_at)) * 1440
+                            )
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS closed_minutes,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN e.restored_at IS NULL THEN 1
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS active_events
+        FROM meters AS m
+        LEFT JOIN outage_events AS e ON e.meter_id = m.meter_id
+        GROUP BY m.feeder_id, m.region
+        ORDER BY m.feeder_id ASC
+        """
+>       rows = conn.execute(query).fetchall()
+               ^^^^^^^^^^^^^^^^^^^
+E       sqlite3.OperationalError: no such column: e.reported_customers
+
+src\gridpulse\repository.py:72: OperationalError
+___________________ test_list_events_joins_meter_dimension ____________________
+
+seeded_conn = <sqlite3.Connection object at 0x000002571C607F10>
+
+    def test_list_events_joins_meter_dimension(seeded_conn):
+>       events = list_events(seeded_conn)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_repository.py:7: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+conn = <sqlite3.Connection object at 0x000002571C607F10>
+
+    def list_events(conn: sqlite3.Connection) -> list[OutageEvent]:
+        """Return all events ordered by start time and event id."""
+>       rows = conn.execute(EVENT_SELECT + " ORDER BY e.started_at, e.event_id").fetchall()
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       sqlite3.OperationalError: no such column: e.restored_at
+
+src\gridpulse\repository.py:27: OperationalError
+___________________ test_feeder_summary_has_baked_in_values ___________________
+
+seeded_conn = <sqlite3.Connection object at 0x000002571C607010>
+
+    def test_feeder_summary_has_baked_in_values(seeded_conn):
+>       assert feeder_summary(seeded_conn) == [
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^
+            {"feeder_id": "F-East", "region": "East", "event_count": 1, "affected_customers": 9, "closed_minutes": 120, "active_events": 0},
+            {"feeder_id": "F-North", "region": "North", "event_count": 3, "affected_customers": 28, "closed_minutes": 320, "active_events": 0},
+            {"feeder_id": "F-South", "region": "South", "event_count": 2, "affected_customers": 57, "closed_minutes": 60, "active_events": 1},
+        ]
+
+tests\test_repository.py:14: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+conn = <sqlite3.Connection object at 0x000002571C607010>
+
+    def feeder_summary(conn: sqlite3.Connection) -> list[dict[str, Any]]:
+        """Return per-feeder event, customer, duration, and active-event totals.
+    
+        TODO(candidate): use a JOIN, GROUP BY, deterministic ordering, and duration
+        calculation. Expected keys: feeder_id, region, event_count,
+        affected_customers, closed_minutes, active_events.
+        """
+        query = """
+        SELECT
+            m.feeder_id,
+            m.region,
+            COUNT(e.event_id) AS event_count,
+            COALESCE(SUM(e.reported_customers), 0) AS affected_customers,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN e.restored_at IS NOT NULL THEN
+                            MAX(
+                                0,
+                                (julianday(e.restored_at)
+                                 - julianday(e.started_at)) * 1440
+                            )
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS closed_minutes,
+            COALESCE(
+                SUM(
+                    CASE
+                        WHEN e.restored_at IS NULL THEN 1
+                        ELSE 0
+                    END
+                ),
+                0
+            ) AS active_events
+        FROM meters AS m
+        LEFT JOIN outage_events AS e ON e.meter_id = m.meter_id
+        GROUP BY m.feeder_id, m.region
+        ORDER BY m.feeder_id ASC
+        """
+>       rows = conn.execute(query).fetchall()
+               ^^^^^^^^^^^^^^^^^^^
+E       sqlite3.OperationalError: no such column: e.reported_customers
+
+src\gridpulse\repository.py:72: OperationalError
+________________ test_latest_event_by_meter_uses_window_logic _________________
+
+seeded_conn = <sqlite3.Connection object at 0x000002571C606200>
+
+    def test_latest_event_by_meter_uses_window_logic(seeded_conn):
+>       latest = latest_event_by_meter(seeded_conn)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests\test_repository.py:22: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _
+
+conn = <sqlite3.Connection object at 0x000002571C606200>
+
+    def latest_event_by_meter(conn: sqlite3.Connection) -> list[OutageEvent]:
+        """Return the latest event for every meter using a window function.
+    
+        TODO(candidate): ROW_NUMBER() OVER (PARTITION BY ... ORDER BY ...).
+        """
+        query = """
+        WITH ranked_events AS (
+            SELECT
+                e.event_id,
+                e.meter_id,
+                m.feeder_id,
+                m.region,
+                e.started_at,
+                e.restored_at,
+                e.cause,
+                e.reported_customers,
+                ROW_NUMBER() OVER (
+                    PARTITION BY e.meter_id
+                    ORDER BY e.started_at DESC, e.event_id DESC
+                ) AS row_num
+            FROM outage_events AS e
+            JOIN meters AS m ON m.meter_id = e.meter_id
+        )
+        SELECT
+            event_id,
+            meter_id,
+            feeder_id,
+            region,
+            started_at,
+            restored_at,
+            cause,
+            reported_customers
+        FROM ranked_events
+        WHERE row_num = 1
+        ORDER BY meter_id ASC
+        """
+>       rows = conn.execute(query).fetchall()
+               ^^^^^^^^^^^^^^^^^^^
+E       sqlite3.OperationalError: no such column: e.restored_at
+
+src\gridpulse\repository.py:112: OperationalError
+_________ test_run_checks_auto_detects_interpreter_and_writes_summary _________
+
+    def test_run_checks_auto_detects_interpreter_and_writes_summary():
+        text = read("scripts/run_checks.sh")
+        assert "command -v python3" in text
+        assert "command -v python" in text
+        assert "command -v py" in text
+        assert "TODO(candidate)" not in text
+>       assert "verify_env.py" in text
+E       assert 'verify_env.py' in '\n#!/usr/bin/env bash\n\nset -u\n\nPROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"\nSUMMARY_FILE="$PROJECT_ROOT/checks_summary.txt"\nTEST_OUTPUT="$PROJECT_ROOT/.checks_test_output.txt"\n\ncd "$PROJECT_ROOT" || exit 1\n\n# Detect an available Python command.\nif command -v python3 >/dev/null 2>&1; then\n    PYTHON=(python3)\nelif command -v python >/dev/null 2>&1; then\n    PYTHON=(python)\nelif command -v py >/dev/null 2>&1; then\n    PYTHON=(py -3)\nelse\n    echo "ERROR: Python was not found." | tee "$SUMMARY_FILE"\n    exit 1\nfi\n\n{\n    echo "GridPulse Check Summary"\n    echo "======================="\n    printf \'Python command:\'\n    printf \' %s\' "${PYTHON[@]}"\n    echo\n    echo\n} > "$SUMMARY_FILE"\n\n# Check Python environment.\nif "${PYTHON[@]}" --version >> "$SUMMARY_FILE" 2>&1; then\n    echo "Environment check: PASS" | tee -a "$SUMMARY_FILE"\nelse\n    echo "Environment check: FAIL" | tee -a "$SUMMARY_FILE"\n    exit 1\nfi\n\n# Run the test suite and save its output.\nif "${PYTHON[@]}" -m pytest -v > "$TEST_OUTPUT" 2>&1; then\n    cat "$TEST_OUTPUT"\n    echo "Tests: PASS" | tee -a "$SUMMARY_FILE"\nelse\n    cat "$TEST_OUTPUT"\n    echo "Tests: FAIL" | tee -a "$SUMMARY_FILE"\n    cat "$TEST_OUTPUT" >> "$SUMMARY_FILE"\n    rm -f "$TEST_OUTPUT"\n    exit 1\nfi\n\nrm -f "$TEST_OUTPUT"\necho "Summary saved to: $SUMMARY_FILE"\nexit 0\n'
+
+tests\test_scripts_static.py:18: AssertionError
+__________ test_package_script_uses_tar_and_excludes_generated_files __________
+
+    def test_package_script_uses_tar_and_excludes_generated_files():
+        text = read("scripts/package_submission.sh")
+        assert "tar" in text
+>       assert "--exclude=.git" in text or "--exclude='.git'" in text or '--exclude=".git"' in text
+E       assert ('--exclude=.git' in '#!/usr/bin/env bash\nset -euo pipefail\nROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"\ncd "$ROOT_DIR"\nmkdir -p submission\n\n# TODO(candidate): create submission/gridpulse-submission.tar.gz with tar.\n# Exclude .git, .venv, caches, data/*.db, artifacts, submission, and old archives.\necho "TODO(candidate): implement package_submission.sh" >&2\nexit 1\n' or "--exclude='.git'" in '#!/usr/bin/env bash\nset -euo pipefail\nROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"\ncd "$ROOT_DIR"\nmkdir -p submission\n\n# TODO(candidate): create submission/gridpulse-submission.tar.gz with tar.\n# Exclude .git, .venv, caches, data/*.db, artifacts, submission, and old archives.\necho "TODO(candidate): implement package_submission.sh" >&2\nexit 1\n' or '--exclude=".git"' in '#!/usr/bin/env bash\nset -euo pipefail\nROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"\ncd "$ROOT_DIR"\nmkdir -p submission\n\n# TODO(candidate): create submission/gridpulse-submission.tar.gz with tar.\n# Exclude .git, .venv, caches, data/*.db, artifacts, submission, and old archives.\necho "TODO(candidate): implement package_submission.sh" >&2\nexit 1\n')
+
+tests\test_scripts_static.py:27: AssertionError
+________ test_remote_deploy_validates_environment_and_does_not_connect ________
+
+    def test_remote_deploy_validates_environment_and_does_not_connect():
+        text = read("scripts/remote_deploy.sh")
+        for name in ["GRIDPULSE_REMOTE_HOST", "GRIDPULSE_REMOTE_USER", "GRIDPULSE_SSH_KEY"]:
+            assert name in text
+>       assert "ssh" in text
+E       assert 'ssh' in '#!/usr/bin/env bash\nset -euo pipefail\n\n# TODO(candidate): require GRIDPULSE_REMOTE_HOST, GRIDPULSE_REMOTE_USER, and\n# GRIDPULSE_SSH_KEY. Print the SSH command that would run, but never connect.\necho "TODO(candidate): implement remote_deploy.sh" >&2\nexit 1\n'
+
+tests\test_scripts_static.py:37: AssertionError
+___________________ test_unknown_cause_raises_domain_error ____________________
+
+    def test_unknown_cause_raises_domain_error():
+>       with pytest.raises(OutageDataError, match="unknown cause"):
+             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+E       AssertionError: Regex pattern did not match.
+E         Expected regex: 'unknown cause'
+E         Actual message: 'Unknown outage cause: cyber'
+
+tests\test_service.py:23: AssertionError
+=========================== short test summary info ===========================
+FAILED tests/test_cli.py::test_init_and_report_cli - AssertionError: assert 1...
+FAILED tests/test_cli.py::test_cli_rejects_bad_database_path - AssertionError...
+FAILED tests/test_db.py::test_relational_constraints - sqlite3.OperationalErr...
+FAILED tests/test_docker_ci_static.py::test_dockerfile_uses_reproducible_offline_test_install
+FAILED tests/test_docker_ci_static.py::test_compose_declares_volume_network_and_environment
+FAILED tests/test_docker_ci_static.py::test_ci_has_test_gate_promotion_and_safe_secrets
+FAILED tests/test_logging_utils.py::test_timed_operation_logs_completion - As...
+FAILED tests/test_reporting.py::test_render_feeder_report_exact_text - sqlite...
+FAILED tests/test_repository.py::test_list_events_joins_meter_dimension - sql...
+FAILED tests/test_repository.py::test_feeder_summary_has_baked_in_values - sq...
+FAILED tests/test_repository.py::test_latest_event_by_meter_uses_window_logic
+FAILED tests/test_scripts_static.py::test_run_checks_auto_detects_interpreter_and_writes_summary
+FAILED tests/test_scripts_static.py::test_package_script_uses_tar_and_excludes_generated_files
+FAILED tests/test_scripts_static.py::test_remote_deploy_validates_environment_and_does_not_connect
+FAILED tests/test_service.py::test_unknown_cause_raises_domain_error - Assert...
+======================== 15 failed, 19 passed in 0.31s ========================
